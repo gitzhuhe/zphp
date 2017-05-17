@@ -134,11 +134,11 @@ class Db {
      */
     public static function initMysqlPool($workId, $config){
         if(!empty($config)) {
-            foreach($config as $key => $value){
-                if (empty(self::$instance->mysqlPool[$key])) {
+            foreach ($config as $dbKey =>$DBconfig){
+                if (empty(self::$instance->mysqlPool[$dbKey])) {
                     self::$workId = $workId;
-                    self::$instance->mysqlPool[$key] = new MysqlAsynPool();
-                    self::$instance->mysqlPool[$key]->initWorker($workId, $value);
+                    self::$instance->mysqlPool[$dbKey] = new MysqlAsynPool();
+                    self::$instance->mysqlPool[$dbKey]->initWorker($workId, $DBconfig);
                 }
             }
 
@@ -217,9 +217,15 @@ class Db {
      * @param string $db_key
      * @return Model
      */
-    public static function table($tableName='', $poolName='default'){
-        if(!isset(self::$_tables[$poolName][$tableName])){
-            self::$_tables[$poolName][$tableName] = new Model($tableName, self::$instance->mysqlPool[$poolName]);
+    public static function table($tableName=''){
+        if(!isset(self::$_tables[$tableName])){
+            if(strpos($tableName , '#') !== false){
+                list($DbKey, $_tableName) = explode('#', $tableName);
+            }else{
+                $DbKey = 'default';
+                $_tableName = $tableName;
+            }
+            self::$_tables[$tableName] = new Model($_tableName, self::$instance->mysqlPool[$DbKey]);
         }
         return self::$_tables[$poolName][$tableName];
     }
@@ -279,9 +285,13 @@ class Db {
      * 释放mysql连接池
      */
     public static function freeMysqlPool(){
-        if(isset(self::$instance->mysqlPool)) {
-            self::$instance->mysqlPool->free();
-            unset(self::$instance->mysqlPool);
+        if(is_array(self::$instance->mysqlPool)){
+            foreach (self::$instance->mysqlPool as $DbKey => $DBconfig){
+                if(isset(self::$instance->mysqlPool[$DbKey])) {
+                    self::$instance->mysqlPool[$DbKey]->free();
+                    unset(self::$instance->mysqlPool[$DbKey]);
+                }
+            }
         }
     }
 
