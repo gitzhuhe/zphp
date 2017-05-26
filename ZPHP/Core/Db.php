@@ -228,7 +228,7 @@ class Db {
             }
             self::$_tables[$tableName] = new Model($_tableName, self::$instance->mysqlPool[$DbKey]);
         }
-        return self::$_tables[$poolName][$tableName];
+        return self::$_tables[$tableName];
     }
 
 
