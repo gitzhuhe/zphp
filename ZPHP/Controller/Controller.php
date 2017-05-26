@@ -282,7 +282,7 @@ class Controller extends IController{
         if(!empty($this->request)) {
             yield $this->request->init($this->swRequest);
             if(Config::getField('project','CallBackFunc') &&
-                $this->request->get[Config::getField('project','CallBackFunc')])
+                !empty($this->request->get[Config::getField('project','CallBackFunc')]))
                 $this->setCallBack($this->request->get[Config::getField('project','CallBackFunc')]);
             $this->copyCookie($this->request, $this->response);
             $this->copySession($this->request, $this->response);
