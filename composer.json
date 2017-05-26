@@ -1,5 +1,5 @@
 {
-    "name": "Sing/zphp",
+    "name": "sing/zphp",
     "description": "Asynchronous non-blocking framework based on ZPHP transformation",
     "authors": [
         {
