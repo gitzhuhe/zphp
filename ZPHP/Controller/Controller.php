@@ -138,6 +138,7 @@ class Controller extends IController{
             if (!empty(Config::get('response_filter'))) {
                 $result = $this->strNull($result);
             }
+            $result =  $this->checkCallBack($result);
             $this->setStatusCode(200);
             $this->setHeader('Content-Type',   'application/json');
             $this->setResponseContent($result);
@@ -246,7 +247,7 @@ class Controller extends IController{
     protected function endResponse($result=null){
         if($this->checkResponse()){
             if(!is_string($result) && $this->checkApi()){
-                $this->checkCallBack($this->jsonReturn($result));
+                $this->jsonReturn($result);
             }else{
                 $this->strReturn($result);
             }
