@@ -52,6 +52,8 @@ class Request{
 
         $this->get = !empty($request->get)?$request->get:[];
         if(Config::getField('project','mergePost')) $this->get = array_merge($this->post, $this->get);
+        //if(Config::getField('project','CallBackFunc') && $this->get[Config::getField('project','CallBackFunc')])
+
         $methodType = $request->server['request_method'];
         $this->request = $methodType=='GET'?array_merge($this->get, $this->post):array_merge($this->post, $this->get);
         $this->files = !empty($request->files)?$request->files:[];
