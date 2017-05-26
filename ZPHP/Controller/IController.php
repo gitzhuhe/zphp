@@ -32,10 +32,17 @@ abstract class IController{
         $this->response->setApi();
     }
 
+    public function setCallBack($callBack){
+        $this->response->setCallBack($callBack);
+    }
+
     public function checkApi(){
         return $this->response->checkApi();
     }
 
+    public function checkCallBack($data){
+        return $this->response->checkCallBack($data);
+    }
 
     public function setCoroutineMethodParam($method, $param){
         $this->coroutineMethod = $method;

@@ -15,6 +15,7 @@ class BaseResponse{
     public $content = '';
 
     public $isApi=false;
+    public $isCross='';
     protected $hasResponse=false;
 
     public function setReponseContent($responseContent){
@@ -35,6 +36,12 @@ class BaseResponse{
 
     public function setApi(){
         $this->isApi = true;
+    }
+    public function setCallBack($CallBack){
+        $this->isCross = $CallBack;
+    }
+    public function checkCallBack($data){
+        return $this->isCross?$this->isCross.'('.$data.')':$data;
     }
 
     public function checkApi(){
