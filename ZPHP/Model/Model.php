@@ -210,7 +210,7 @@ class Model {
     public function find(){
         $this->limit(1);
         $data = yield  $this->get();
-        return $data===false?false:!empty($data[0])?$data[0]:(object)[];
+        return $data===false?false:!empty($data[0])?$data[0]:[];
     }
 
     /**
