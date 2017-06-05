@@ -273,7 +273,9 @@ class Controller extends IController{
     protected function endResponse($result=null){
 
         if($this->tcpRequst){
-            $this->setTcpContent($result);
+            if($this->checkResponse()) {
+                $this->setTcpContent($result);
+            }
             yield $this->tcpResponse->finish($this->tcpServ, $this->tcpFd, $this->tcpData);
         }else{
             if($this->checkResponse()){

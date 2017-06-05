@@ -51,30 +51,23 @@ class SwooleTcp extends ZSwooleTcp
 
             $pack = $this->dispatcher->distribute($requestDeal);
 
-            //if($httpResult!=='NULL') {
-                //if(!is_string($httpResult)){
-                   // if(strval(Config::getField('project','type'))=='api'){
-                       // $httpResult = json_encode($httpResult);
-                    //}else{
-                        //$httpResult = strval($httpResult);
-                    //}
-                //}
+            if($pack!=='NULL') {
                 $serv->send($fd , $pack);
-                //$response->status(200);
-                //$response->end($httpResult);
-            //}
+            }
         } catch (\Exception $e) {
             $message = explode('|',$e->getMessage());
             $code = intval($message[0]);
             if($code==0){
                 //$response->status(500);
-                $httpResult = Swoole::info($e->getMessage());
+                //$httpResult = Swoole::info($e->getMessage());
             }else {
                 //$response->status($code);
                 $otherMessage = !empty($message[1])?' '.$message[1]:'';
-                $httpResult = Swoole::info(Response::$HTTP_HEADERS[$code].$otherMessage);
+                //$httpResult = Swoole::info(Response::$HTTP_HEADERS[$code].$otherMessage);
             }
             //$response->end($httpResult);
+            Log::write('Tcp Exception',1);
+            $serv->send($fd , '');
         }
     }
 
