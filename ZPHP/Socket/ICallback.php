@@ -20,7 +20,7 @@ interface ICallback
     /**
 	 * 当有数据到达时，回调此方法
 	 */
-    public function onReceive();
+    public function onReceive(\swoole_server $serv, $fd, $from_id, $data);
 
     /**
 	 * 当有client断开时，回调此方法

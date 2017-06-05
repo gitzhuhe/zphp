@@ -133,7 +133,7 @@ abstract class Swoole implements ICallback
         $this->onReceive($server, $fd, $from_id, $data);
     }
 
-    abstract public function onReceive();
+    abstract public function onReceive(\swoole_server $serv, $fd, $from_id, $data);
 
     public function onPacket($server, $data, $clientInfo)
     {

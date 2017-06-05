@@ -25,11 +25,14 @@ class Controller extends IController{
 
     private $swRequest;
     private $swResponse;
+    private $tcpRequst;
+
 
     /**
      * @var Request
      */
     public $request;
+
 
     /**
      * @var View $view;
@@ -44,13 +47,26 @@ class Controller extends IController{
     protected $tcontroller;
     protected $tmethod;
 
+    private $tcpData;
+    private $tcpServ;
+    private $tcpFd;
+
 
     function __construct()
     {
-        $vConfig = Config::getField('project', 'view');
-        $this->view = Container::View('View', $vConfig);
-        $this->request = Container::Network('Http/Request');
-        $this->response = Container::Network('Http/Response');
+        switch (Config::getField('socket', 'server_type')){
+            case 'tcp':
+                $this->tcpRequst = Container::Network('Tcp/Request');
+                $this->tcpResponse = Container::Network('Tcp/Response');
+                $this->isTcp = true;
+                break;
+            default:
+                $vConfig = Config::getField('project', 'view');
+                $this->view = Container::View('View', $vConfig);
+                $this->request = Container::Network('Http/Request');
+                $this->response = Container::Network('Http/Response');
+        }
+
     }
 
 
@@ -69,6 +85,12 @@ class Controller extends IController{
     public function setSwRequestResponse($swrequest, $swresponse){
         $this->swRequest = $swrequest;
         $this->swResponse = $swresponse;
+    }
+
+    public function setTcpData($serv , $fd, $data){
+        $this->tcpServ = $serv;
+        $this->tcpFd = $fd;
+        $this->tcpData = $data;
     }
 
     /**
@@ -95,6 +117,10 @@ class Controller extends IController{
 
     protected function setStatusCode($code){
         $this->response->setHttpCode($code);
+    }
+
+    protected function setTcpContent($content){
+        $this->tcpResponse->setReponseContent($content);
     }
 
     /**
@@ -245,14 +271,21 @@ class Controller extends IController{
      * @param $result
      */
     protected function endResponse($result=null){
-        if($this->checkResponse()){
-            if(!is_string($result) && $this->checkApi()){
-                $this->jsonReturn($result);
-            }else{
-                $this->strReturn($result);
+
+        if($this->tcpRequst){
+            $this->setTcpContent($result);
+            yield $this->tcpResponse->finish($this->tcpServ, $this->tcpFd, $this->tcpData);
+        }else{
+            if($this->checkResponse()){
+                if(!is_string($result) && $this->checkApi()){
+                    $this->jsonReturn($result);
+                }else{
+                    $this->strReturn($result);
+                }
             }
+            yield $this->response->finish($this->swResponse);
+
         }
-        yield $this->response->finish($this->swResponse);
     }
 
 
@@ -279,6 +312,9 @@ class Controller extends IController{
      */
     public function doBeforeExecute()
     {
+        if(!empty($this->tcpRequst)){
+            yield $this->tcpRequst->init($this->tcpData);
+        }
         if(!empty($this->request)) {
             yield $this->request->init($this->swRequest);
             if(Config::getField('project','CallBackFunc') &&

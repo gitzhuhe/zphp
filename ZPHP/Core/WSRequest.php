@@ -85,9 +85,9 @@ class WSRequest extends Request{
         /**
          * @var WSController $controller
          */
-        $controller->coroutineMethod = function()use($controller, $action){
-            return call_user_func([$controller, $action]);
-        };
+//        $controller->coroutineMethod = function()use($controller, $action){
+//            return call_user_func([$controller, $action]);
+//        };
         $controller->setSocket($this->server, $this->frame->fd, $this->socketData);
         return $this->executeGeneratorScheduler($controller);
     }

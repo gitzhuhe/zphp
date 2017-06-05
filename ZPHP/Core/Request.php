@@ -11,6 +11,7 @@ use ZPHP\Controller\Controller;
 use ZPHP\Controller\IController;
 use ZPHP\Controller\WSController;
 use ZPHP\Coroutine\Base\CoroutineTask;
+use ZPHP\Dora\Packet;
 
 class Request{
 
@@ -20,6 +21,10 @@ class Request{
     protected $coroutineTask;
     protected $request;
     protected $response;
+    protected $tcp;
+    protected $tcpData;
+    protected $tcpServ;
+    protected $tcpFd;
 
     function __construct(CoroutineTask $coroutineTask)
     {
@@ -42,13 +47,25 @@ class Request{
         $this->response = $response;
     }
 
+    public function initTcp($serv, $fd ,$data){
+        $this->tcp = $data;
+        $this->tcpServ = $serv;
+        $this->tcpFd = $fd;
+    }
+
     /**
      * 解析路由
      * @return array|null
      */
     public function parse(){
-        return Route::parse($this->request->server['path_info'],
+        if($this->tcp){
+            $this->tcpData = Packet::packDecode($this->tcp);
+            return Route::parse($this->tcpData['data']['path_info'],
+                $this->tcpData['data']['request_method']);
+        }else{
+            return Route::parse($this->request->server['path_info'],
             $this->request->server['request_method']);
+        }
     }
 
 
@@ -125,7 +142,8 @@ class Request{
         $controller->module = $mvc['module'];
         $controller->controller = $mvc['controller'];
         $controller->method= $action;
-        $controller->setSwRequestResponse($this->request, $this->response);
+        if($this->tcpData) $controller->setTcpData($this->tcpServ, $this->tcpFd , $this->tcpData['data']);
+        else $controller->setSwRequestResponse($this->request, $this->response);
         return $this->executeGeneratorScheduler($controller);
     }
 

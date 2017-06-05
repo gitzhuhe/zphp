@@ -11,10 +11,10 @@ use ZPHP\Protocol;
 use ZPHP\Socket\Callback\Swoole as CSwoole;
 
 
-abstract class SwooleHttp extends CSwoole
+abstract class SwooleTcp extends CSwoole
 {
 
-    public function onReceive(\swoole_server $serv, $fd, $from_id, $data)
+    public function onRequest()
     {
         throw new \Exception('http server must use onRequest');
     }
@@ -26,17 +26,6 @@ abstract class SwooleHttp extends CSwoole
         register_shutdown_function(array($this, 'onErrorShutDown'));
     }
 
-
-    /**
-     * http 请求回调函数
-     * @param $request
-     * @param $response
-     */
-    public function doRequest($request, $response)
-    {
-        $this->onRequest($request, $response);
-        $this->afterResponese();
-    }
 
 
     function onErrorShutDown()
@@ -83,7 +72,7 @@ abstract class SwooleHttp extends CSwoole
         if (ob_get_contents()) ob_end_clean();
     }
 
-    abstract public function onRequest($request, $response);
+
 
     public function onTask($server, $taskId, $fromId, $data)
     {
