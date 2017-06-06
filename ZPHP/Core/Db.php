@@ -13,9 +13,11 @@ use ZPHP\Coroutine\Memcached\MemcachedAsynPool;
 use ZPHP\Coroutine\Mongo\MongoAsynPool;
 use ZPHP\Coroutine\Redis\RedisAsynPool;
 use ZPHP\Coroutine\Task\TaskAsynPool;
+use ZPHP\Coroutine\Tcp\TcpAsynPool;
 use ZPHP\Memcached\Memcached;
 use ZPHP\Model\Model;
 use ZPHP\Coroutine\Mysql\MysqlAsynPool;
+use ZPHP\Model\Tcp;
 use ZPHP\Mongo\Mongo;
 use ZPHP\Redis\Redis;
 use ZPHP\Task\Task;
@@ -49,6 +51,8 @@ class Db {
      * @var TaskAsynPool $taskPool
      */
     public $taskPool;
+
+    private static $_tcpPool;
 
     private static $server;
     private static $instance=null;
@@ -105,6 +109,7 @@ class Db {
         self::initMemcachedPool($workerId, self::$server, Config::get('memcached'));
         $taskConfig = ['asyn_max_count'=>Config::getField('socket', 'single_task_worker_num')];
         self::initTaskPool($workerId, self::$server, $taskConfig);
+        //self::initTcpPool($workerId, Config::get('tcp')); //TODO TCP客户端有bug，暂时不运行
         self::initSwooleModule(Config::get('swoole_module'));
     }
 
@@ -211,6 +216,13 @@ class Db {
         }
     }
 
+    public static function initTcpPool($workId,  $config){
+        if(empty(self::$instance->tcpPool)){
+            self::$instance->tcpPool = new TcpAsynPool();
+            self::$instance->tcpPool->initWorker($workId, $config);
+        }
+    }
+
 
     /**
      * @param string $tableName
@@ -231,6 +243,12 @@ class Db {
         return self::$_tables[$tableName];
     }
 
+    public static function tcp(){
+        if(!isset(self::$_tcpPool)){
+            self::$_tcpPool = new Tcp(self::$instance->tcpPool);
+        }
+        return self::$_tcpPool;
+    }
 
     /**
      * @param $collection

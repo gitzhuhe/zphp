@@ -15,7 +15,7 @@ use ZPHP\Coroutine\Base\TaskDistribute;
 
 abstract class AsynPool implements IAsynPool
 {
-    protected $_maxToken = DEBUG===true?100:650000;
+    protected $_maxToken = DEBUG===true?10000:650000;
     protected $_asynName;
     protected $commands;
     protected $pool;
