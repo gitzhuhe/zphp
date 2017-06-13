@@ -168,7 +168,9 @@ class ZPHP
             defined('DS') || define('DS', DIRECTORY_SEPARATOR);
             self::$zPath = $rootPath;
             self::setRootPath($rootPath);
-            self::setConfigPath('');
+            $dev = get_cfg_var('Development');
+            $cfgDir = $dev?$dev:'';
+            self::setConfigPath($cfgDir);
 
             \spl_autoload_register(__CLASS__.'::autoLoader');
             $config_path = self::getConfigPath();
