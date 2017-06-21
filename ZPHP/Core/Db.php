@@ -107,10 +107,9 @@ class Db {
         self::initMongoPool($workerId, self::$server, Config::get('mongo'));
         self::initSessionRedisPool($workerId, Config::get('session'));
         self::initMemcachedPool($workerId, self::$server, Config::get('memcached'));
-        $taskConfig = ['asyn_max_count'=>Config::getField('socket', 'single_task_worker_num')];
+        $taskConfig = ['asyn_max_count'=>Config::getField('server', 'single_task_worker_num')];
         self::initTaskPool($workerId, self::$server, $taskConfig);
-        //self::initTcpPool($workerId, Config::get('tcp')); //TODO TCP客户端有bug，暂时不运行
-        self::initSwooleModule(Config::get('swoole_module'));
+        self::initSwooleModule(Config::getField('project', 'swoole_module'));
     }
 
     /**
@@ -146,8 +145,8 @@ class Db {
                     self::$instance->mysqlPool[$dbKey]->initWorker($workId, $DBconfig);
                 }
             }
-
         }
+        print_r(self::$instance->mysqlPool, true);
     }
 
     /**
@@ -304,13 +303,12 @@ class Db {
      * 释放mysql连接池
      */
     public static function freeMysqlPool(){
-        if(is_array(self::$instance->mysqlPool)){
-            foreach (self::$instance->mysqlPool as $DbKey => $DBconfig){
-                if(isset(self::$instance->mysqlPool[$DbKey])) {
-                    self::$instance->mysqlPool[$DbKey]->free();
-                    unset(self::$instance->mysqlPool[$DbKey]);
-                }
+        if(isset(self::$instance->mysqlPool)) {
+            foreach (self::$instance->mysqlPool as $key => $pool){
+                $pool->free();
+                unset(self::$instance->mysqlPool[$key]);
             }
+
         }
     }
 
