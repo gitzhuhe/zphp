@@ -67,7 +67,7 @@ class SwooleTcp extends ZSwooleTcp
             //TODO 异常暂时处理方式
             if(!empty($requestDeal->tcpData['guid'])){
                 $guid = $requestDeal->tcpData['guid'];
-                $httpResult = Packet::packFormat($guid,'error',$code,array($httpResult));
+                $httpResult = Packet::packFormat($guid,'error',$code,$httpResult);
                 $httpResultData = Packet::packEncode($httpResult);
                 $serv->send($fd , $httpResultData);
             }

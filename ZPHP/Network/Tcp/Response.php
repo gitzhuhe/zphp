@@ -18,7 +18,7 @@ class Response extends BaseResponse{
     {
         $this->swServer = $server;
         $this->swFd = $fd;
-        $this->swContent = Packet::packFormat($tcpData['guid'],'OK',0,array($this->content));
+        $this->swContent = Packet::packFormat($tcpData['guid'],'OK',0,$this->content);
         $this->swContent['guid'] = $tcpData['guid'];
         $this->swContent = Packet::packEncode($this->swContent);
         $this->swServer->send($this->swFd, $this->swContent);
