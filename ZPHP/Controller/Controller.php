@@ -71,7 +71,7 @@ class Controller extends IController{
     function __clone()
     {
         // TODO: Implement __clone() method.
-        $cloneArray = ['view', 'request','response'];
+        $cloneArray = ['view', 'request','response','tcpResponse'];
         foreach($cloneArray as $item){
             if(!empty($this->$item)){
                 $this->$item = clone $this->$item;
