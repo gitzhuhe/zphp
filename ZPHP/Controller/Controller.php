@@ -25,8 +25,6 @@ class Controller extends IController{
 
     private $swRequest;
     private $swResponse;
-    public $tcpRequst;
-
 
     /**
      * @var Request
@@ -56,7 +54,7 @@ class Controller extends IController{
     {
         switch (Config::getField('socket', 'server_type')){
             case 'tcp':
-                $this->tcpRequst = Container::Network('Tcp/Request');
+                $this->request = Container::Network('Tcp/Request');
                 $this->tcpResponse = Container::Network('Tcp/Response');
                 $this->isTcp = true;
                 break;
@@ -272,7 +270,7 @@ class Controller extends IController{
      */
     protected function endResponse($result=null){
 
-        if($this->tcpRequst){
+        if($this->isTcp){
             if($this->checkResponse()) {
                 $this->setTcpContent($result);
             }
@@ -314,10 +312,9 @@ class Controller extends IController{
      */
     public function doBeforeExecute()
     {
-        if(!empty($this->tcpRequst)){
-            yield $this->tcpRequst->init($this->tcpData);
-        }
-        if(!empty($this->request)) {
+        if($this->isTcp){
+            yield $this->request->init($this->tcpData);
+        }elseif(!empty($this->request)) {
             yield $this->request->init($this->swRequest);
             if(Config::getField('project','CallBackFunc') &&
                 !empty($this->request->request[Config::getField('project','CallBackFunc')]))
