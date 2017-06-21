@@ -25,7 +25,7 @@ class Controller extends IController{
 
     private $swRequest;
     private $swResponse;
-    private $tcpRequst;
+    public $tcpRequst;
 
 
     /**

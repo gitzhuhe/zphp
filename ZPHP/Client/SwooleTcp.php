@@ -65,9 +65,10 @@ class SwooleTcp extends ZSwooleTcp
                 $otherMessage = !empty($message[1])?' '.$message[1]:'';
                 //$httpResult = Swoole::info(Response::$HTTP_HEADERS[$code].$otherMessage);
             }
+            //TODO 异常暂时先不处理
             //$response->end($httpResult);
-            Log::write('Tcp Exception',1);
-            $serv->send($fd , '');
+            //Log::write('Tcp Exception',1);
+            //$serv->send($fd , '');
         }
     }
 

@@ -27,7 +27,7 @@ class Request{
     }
 
     public function init($request){
-        $this->request = $request['param'];
+        $this->request = empty($request['param'])?[]:$request['param'];
     }
 
     /**
