@@ -58,17 +58,18 @@ class SwooleTcp extends ZSwooleTcp
             $message = explode('|',$e->getMessage());
             $code = intval($message[0]);
             if($code==0){
-                //$response->status(500);
-                //$httpResult = Swoole::info($e->getMessage());
+                $httpResult = Swoole::tcpInfo($e->getMessage());
             }else {
-                //$response->status($code);
                 $otherMessage = !empty($message[1])?' '.$message[1]:'';
-                //$httpResult = Swoole::info(Response::$HTTP_HEADERS[$code].$otherMessage);
+                $httpResult = Swoole::tcpInfo($code.$otherMessage);
             }
-            //TODO 异常暂时先不处理
-            //$response->end($httpResult);
-            //Log::write('Tcp Exception',1);
-            //$serv->send($fd , '');
+            //TODO 异常暂时处理方式
+            if(!empty($requestDeal->tcpData['guid'])){
+                $guid = $requestDeal->tcpData['guid'];
+                $httpResult = Packet::packFormat($guid,'error',$code,array($httpResult));
+                $httpResultData = Packet::packEncode($httpResult);
+                $serv->send($fd , $httpResultData);
+            }
         }
     }
 

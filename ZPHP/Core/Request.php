@@ -22,7 +22,7 @@ class Request{
     protected $request;
     protected $response;
     protected $tcp;
-    protected $tcpData;
+    public $tcpData;
     protected $tcpServ;
     protected $tcpFd;
 
@@ -60,7 +60,6 @@ class Request{
     public function parse(){
         if($this->tcp){
             $this->tcpData = Packet::packDecode($this->tcp);
-            //Log::write(json_encode($this->tcpData),1);
             return Route::parse(!empty($this->tcpData['data']['path_info'])?$this->tcpData['data']['path_info']:'',
                 !empty($this->tcpData['data']['request_method'])?$this->tcpData['data']['request_method']:'');
         }else{
