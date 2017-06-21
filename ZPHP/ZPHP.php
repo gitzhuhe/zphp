@@ -53,10 +53,10 @@ class ZPHP
     public static function init(){
         define("ZPHP_VERSION", 2.2);
         defined('DS') || define('DS', DIRECTORY_SEPARATOR);
-        $mode = get_cfg_var('zhttp.RUN_MODE');
+        $mode = get_cfg_var('zphp.RUN_MODE');
         $mode = in_array($mode, ['qatest', 'online', 'local','pre'])?$mode:'qatest';
         self::setMode($mode);
-        $debug = empty(get_cfg_var('zhttp.DEBUG'))?false:true;
+        $debug = empty(get_cfg_var('zphp.DEBUG'))?false:true;
         define('DEBUG', $debug);
     }
     /**

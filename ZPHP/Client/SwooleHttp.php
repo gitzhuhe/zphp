@@ -87,6 +87,7 @@ class SwooleHttp extends ZSwooleHttp
     public function onWorkerStart($server, $workerId)
     {
         parent::onWorkerStart($server, $workerId);
+        //TODO 合并后这里的思路有别分歧，需要考虑一下再做修改
         $common = Config::getByStr('project.common_file');
         if(!empty($common)){
             require $common;
