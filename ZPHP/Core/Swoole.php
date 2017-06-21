@@ -101,9 +101,9 @@ HTMLS;
      */
     public static function tcpInfo($msg, $content='')
     {
-        $info = [];
-        if (DEBUG===true) {
 
+        if (DEBUG===true) {
+            $info[] = $msg;
             $trace = debug_backtrace();
             foreach ($trace as $k => $t) {
                 if (empty($t['line'])) {
