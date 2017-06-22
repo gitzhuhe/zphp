@@ -49,7 +49,6 @@ class SwooleTcp extends ZSwooleTcp
         try {
             $requestDeal = clone $this->requestDeal;
             $requestDeal->initTcp($serv, $fd , $data);
-
             $pack = $this->dispatcher->distribute($requestDeal);
 
             if($pack!=='NULL') {

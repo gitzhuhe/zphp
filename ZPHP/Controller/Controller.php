@@ -56,7 +56,7 @@ class Controller extends IController
 
     function __construct()
     {
-        switch (Config::getField('socket', 'server_type')) {
+        switch (Config::getField('server', 'server_type', 'http')) {
             case 'tcp':
                 $this->request = Container::Network('Tcp/Request');
                 $this->tcpResponse = Container::Network('Tcp/Response');
