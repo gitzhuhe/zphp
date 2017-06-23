@@ -140,7 +140,7 @@ class Request{
         };
         $controller->setCoroutineMethodParam($coroutineMethod, []);
 
-        $controller->module = $mvc['module'];
+        //$controller->module = $mvc['module'];
         $controller->controller = $mvc['controller'];
         $controller->method= $action;
         if($this->tcpData) $controller->setTcpData($this->tcpServ, $this->tcpFd , $this->tcpData['data']);
