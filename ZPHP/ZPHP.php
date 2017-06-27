@@ -209,9 +209,10 @@ class ZPHP
 
 
     protected static function doc(){
-        $filePath = self::getAppPath().DS ."controller";
+        global $argv;
+        $filePath = self::getAppPath().DS . $argv[2] . DS ."controller";
         $filter = '\\controller';
-        $docPath = self::getRootPath().DS.Config::getField('project', 'doc_path','doc');
+        $docPath = self::getRootPath().DS.Config::getField('project', 'doc_path','doc'). DS .$argv[2];
         $docParse = new DocParser();
         $docParse->makeDocHtml($filePath, $filter, $docPath);
         echo  "文档生成成功!\n";

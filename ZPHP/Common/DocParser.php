@@ -77,7 +77,7 @@ class DocParser {
             }else{
                 $lastVal = $value;
                 $level = substr_count($value[0], '_');
-                $data[$value[1]] = $this->getDefaultVal($value[0]);
+                if(!empty($value[1])) $data[$value[1]] = $this->getDefaultVal($value[0]);
             }
 
             $i ++;
@@ -143,19 +143,19 @@ class DocParser {
             $code = token_get_all($content);
             $classList[] = $this->parsePhpCode($code, $filter);
         }
-
         $allDorArray = [];
         foreach($classList as $key => $value){
+            if(empty($value['function'])) continue;
             foreach($value['function'] as $k => $v){
                 $v['namespace'] = $value['namespace'];
                 $v['classname'] = $value['classname'];
                 $allDorArray[$v['filename']] = $v;
             }
         }
-        $temPath = $docPath.DS.'template';
+        $temPath = dirname($docPath).DS.'template';
         $temFile = $temPath.DS.'detail.html';
         $markdown = $temPath.DS.'markdown.html';
-        $htmlPath = $docPath.DS.'html';
+        $htmlPath = dirname($docPath).DS.'html';
         $markdownPath = $docPath.DS.'markdown';
         foreach($allDorArray as $ky => $val){
             $this->exportDocHtml($temFile, $val, $htmlPath.DS.$val['html_url']);
@@ -194,6 +194,7 @@ class DocParser {
                 $classInfo['classname'] = ($namespace=='\\'?'':$namespace).'\\'.$className;
                 if(!empty($filter)) $classInfo['classname'] = str_replace($filter,'', $classInfo['classname']);
             }
+
             if(is_array($c) && !empty($c[1]) && $c[1]=='function'){
                 if(is_array($code[$i-2]) && !empty($code[$i-2][1]) && strtolower($code[$i-2][1])=='public'){
                     $info = [];
