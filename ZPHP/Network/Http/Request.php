@@ -9,6 +9,7 @@
 namespace ZPHP\Network\Http;
 use ZPHP\Common\Utils;
 use ZPHP\Core\Config;
+use ZPHP\Core\Log;
 use ZPHP\Core\Rand;
 use ZPHP\Session\Session;
 
@@ -47,6 +48,7 @@ class Request{
         //传入请求参数
 
         $this->post = !empty($request->post)?$request->post:[];
+
         parse_str($request->rawContent(), $content);
         $this->post = array_merge($content, $this->post);
 
