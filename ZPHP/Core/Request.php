@@ -22,7 +22,7 @@ class Request{
     protected $request;
     protected $response;
     protected $tcp;
-    protected $tcpData;
+    public $tcpData;
     protected $tcpServ;
     protected $tcpFd;
 
@@ -60,7 +60,6 @@ class Request{
     public function parse(){
         if($this->tcp){
             $this->tcpData = Packet::packDecode($this->tcp);
-            //Log::write(json_encode($this->tcpData),1);
             return Route::parse(!empty($this->tcpData['data']['path_info'])?$this->tcpData['data']['path_info']:'',
                 !empty($this->tcpData['data']['request_method'])?$this->tcpData['data']['request_method']:'');
         }else{
@@ -119,7 +118,8 @@ class Request{
      */
     public function defaultDistribute($mvc)
     {
-        $controllerClass = $mvc['app'].'\\{type}\\'.$mvc['module'].'\\'.$mvc['controller'];
+        //.$mvc['module'].'\\'
+        $controllerClass = $mvc['app'].'\\{type}\\'.$mvc['controller'];
 //        if(!empty(Config::getField('project','reload')) && extension_loaded('runkit')){
 //            App::clear($controllerClass, 'controller');
 //        }
@@ -140,7 +140,7 @@ class Request{
         };
         $controller->setCoroutineMethodParam($coroutineMethod, []);
 
-        $controller->module = $mvc['module'];
+        //$controller->module = $mvc['module'];
         $controller->controller = $mvc['controller'];
         $controller->method= $action;
         if($this->tcpData) $controller->setTcpData($this->tcpServ, $this->tcpFd , $this->tcpData['data']);

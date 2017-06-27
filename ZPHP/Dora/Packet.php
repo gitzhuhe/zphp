@@ -1,6 +1,7 @@
 <?php
 namespace ZPHP\Dora;
 
+use ZPHP\Core\Config;
 use ZPHP\Dora\DoraConst;
 
 class Packet
@@ -12,7 +13,7 @@ class Packet
             "guid" => $guid,
             "code" => $code,
             "msg" => $msg,
-            "data" => $data,
+            "result" => $data,
         );
 
         return $pack;
@@ -26,12 +27,12 @@ class Packet
             $sendStr = serialize($data);
 
             //if compress the packet
-            if (DoraConst::SW_DATACOMPRESS_FLAG == true) {
+            if (Config::getField('tcp','SW_DATACOMPRESS_FLAG',false) == true) {
                 $sendStr = gzencode($sendStr, 4);
             }
 
-            if (DoraConst::SW_DATASIGEN_FLAG == true) {
-                $signedcode = pack('N', crc32($sendStr . DoraConst::SW_DATASIGEN_SALT));
+            if (Config::getField('tcp','SW_DATASIGEN_FLAG',false) == true) {
+                $signedcode = pack('N', crc32($sendStr . Config::getField('tcp','SW_DATASIGEN_SALT','')));
                 $sendStr = pack('N', strlen($sendStr) + 4 + 32) . $signedcode . $guid . $sendStr;
             } else {
                 $sendStr = pack('N', strlen($sendStr) + 32) . $guid . $sendStr;
@@ -53,15 +54,16 @@ class Packet
         $len = unpack("Nlen", $header);
         $len = $len["len"];
 
-        if (DoraConst::SW_DATASIGEN_FLAG == true) {
+        if (Config::getField('tcp','SW_DATASIGEN_FLAG',false) == true) {
 
             $signedcode = substr($str, 4, 4);
             $guid = substr($str, 8, 32);
             $result = substr($str, 40);
 
             //check signed
-            if (pack("N", crc32($result . DoraConst::SW_DATASIGEN_SALT)) != $signedcode) {
-                return self::packFormat($guid, "Signed check error!", 100005);
+            if (pack("N", crc32($result . Config::getField('tcp','SW_DATASIGEN_SALT',''))) != $signedcode) {
+                throw new \Exception(500);
+                //return self::packFormat($guid, "Signed check error!", 100005);
             }
 
             $len = $len - 4 - 32;
@@ -73,10 +75,11 @@ class Packet
         }
         if ($len != strlen($result)) {
             //结果长度不对
-            return self::packFormat($guid, "packet length invalid 包长度非法", 100007);
+            //return self::packFormat($guid, "packet length invalid 包长度非法", 100007);
+            throw new \Exception(500);
         }
         //if compress the packet
-        if (DoraConst::SW_DATACOMPRESS_FLAG == true) {
+        if (Config::getField('tcp','SW_DATACOMPRESS_FLAG',false) == true) {
             $result = gzdecode($result);
         }
         $result = unserialize($result);

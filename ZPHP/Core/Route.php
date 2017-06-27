@@ -9,12 +9,15 @@
 
 namespace ZPHP\Core;
 
-class Route {
-    static public $matchRouteList=[];
+class Route
+{
+    static public $matchRouteList = [];
     static public $routeList = [];
-    static public function init(){
+
+    static public function init()
+    {
         $routeConfig = Config::get('route');
-        if(!empty($routeConfig)) {
+        if (!empty($routeConfig)) {
             foreach ($routeConfig as $key => $value) {
                 $method = strtoupper($key);
                 foreach ($value as $k => $v) {
@@ -53,9 +56,10 @@ class Route {
      * @return array|null
      * @throws \Exception
      */
-    static public function parse($uri, $method){
+    static public function parse($uri, $method)
+    {
         $uriResult = self::routeParse($uri, $method);
-        if(empty($uriResult)){
+        if (empty($uriResult)) {
             $uriResult = self::defaultParse($uri);
         }
         return $uriResult;
@@ -67,22 +71,23 @@ class Route {
      * @param $method
      * @throws \Exception
      */
-    static public function routeParse($uri, $method){
+    static public function routeParse($uri, $method)
+    {
         $method = strtoupper($method);
         $uriResult = null;
-        if(!empty(self::$routeList[$method][$uri])){
+        if (!empty(self::$routeList[$method][$uri])) {
             $uriResult = self::$routeList[$method][$uri];
-            if(is_string($uriResult)){
+            if (is_string($uriResult)) {
                 $uriResult = self::parseString($uriResult);
-            }else if($uriResult instanceof \Closure){
-                $uriResult = ['callback'=>$uriResult];
+            } else if ($uriResult instanceof \Closure) {
+                $uriResult = ['callback' => $uriResult];
             }
-        }else if(!empty(self::$matchRouteList[$method])){
+        } else if (!empty(self::$matchRouteList[$method])) {
             $methodMatchList = self::$matchRouteList[$method];
-            foreach($methodMatchList as $key => $value){
-                if(preg_match($key, $uri, $tmpMatch)){
-                    if(is_string($value))$uriResult = self::parseString($value);
-                    else $uriResult = ['callback'=>$value,'param'=>$tmpMatch];
+            foreach ($methodMatchList as $key => $value) {
+                if (preg_match($key, $uri, $tmpMatch)) {
+                    if (is_string($value)) $uriResult = self::parseString($value);
+                    else $uriResult = ['callback' => $value, 'param' => $tmpMatch];
                 }
             }
 
@@ -96,36 +101,37 @@ class Route {
      * @return array
      * @throws \Exception
      */
-    protected function parseString($str){
+    protected function parseString($str)
+    {
         $mvc = explode('\\', $str);
-        $explodeNum = count($mvc)-1;
-        if($explodeNum>=1){
-            if($explodeNum==1){
-                $mvcConfig = Config::getField('project','mvc');
+        $explodeNum = count($mvc) - 1;
+        if ($explodeNum >= 1) {
+            if ($explodeNum == 1) {
+                $mvcConfig = Config::getField('project', 'mvc');
                 $uriResult = [
                     'app' => $mvcConfig['app'],
-                    'module' => $mvcConfig['module'],
+                    //'module' => $mvcConfig['module'],
+                    'controller' => $mvcConfig['controller'],
+                    'action' => $mvc[0],
+                ];
+            } elseif ($explodeNum == 2) {
+                $mvcConfig = Config::getField('project', 'mvc');
+                $uriResult = [
+                    'app' => $mvcConfig['app'],
+                    //'module' => $mvc[0],
                     'controller' => $mvc[0],
                     'action' => $mvc[1],
                 ];
-            }elseif($explodeNum == 2)  {
-                $mvcConfig = Config::getField('project','mvc');
+            } else {
                 $uriResult = [
-                    'app' => $mvcConfig['app'],
-                    'module' => $mvc[0],
+                    'app' => $mvc[0],
+                    //'module' => $mvc[1],
                     'controller' => $mvc[1],
                     'action' => $mvc[2],
                 ];
-            }else{
-                $uriResult = [
-                    'app' => $mvc[0],
-                    'module' => $mvc[1],
-                    'controller' => $mvc[2],
-                    'action' => $mvc[3],
-                ];
             }
         }
-        return ['mvc'=>self::dealUcfirst($uriResult)];
+        return ['mvc' => self::dealUcfirst($uriResult)];
     }
 
     /**
@@ -134,25 +140,27 @@ class Route {
      * @return array
      * @throws \Exception
      */
-    static public function defaultParse($uri){
-        $mvc = Config::getField('project','mvc');
-        $url_array = explode('/', trim($uri,'/'));
-        if(!empty($url_array[3])){
+    static public function defaultParse($uri)
+    {
+        $mvc = Config::getField('project', 'defaultmvc');
+        $url_array = explode('/', trim($uri, '/'));
+//        if(!empty($url_array[3])){
+//            $mvc['app'] = $url_array[0];
+//            $mvc['module'] = $url_array[1];
+//            $mvc['controller'] = $url_array[2];
+//            $mvc['action'] = $url_array[3];
+//        }else
+        if (!empty($url_array[2])) {
             $mvc['app'] = $url_array[0];
-            $mvc['module'] = $url_array[1];
-            $mvc['controller'] = $url_array[2];
-            $mvc['action'] = $url_array[3];
-        }else if(!empty($url_array[2])){
-            $mvc['module'] = $url_array[0];
             $mvc['controller'] = $url_array[1];
             $mvc['action'] = $url_array[2];
-        }else if(!empty($url_array[1])){
+        } else if (!empty($url_array[1])) {
             $mvc['controller'] = $url_array[0];
             $mvc['action'] = $url_array[1];
-        }else if(!empty($url_array[0])){
-            $mvc['module'] = $url_array[0];
+        } else if (!empty($url_array[0])) {
+            $mvc['action'] = $url_array[0];
         }
-        $mvc = [ 'mvc'=> self::dealUcfirst($mvc)];
+        $mvc = ['mvc' => self::dealUcfirst($mvc)];
         return $mvc;
     }
 
@@ -162,12 +170,13 @@ class Route {
      * @param $mvc
      * @return array
      */
-    static function dealUcfirst($mvc){
+    static function dealUcfirst($mvc)
+    {
         return [
-            'app'=>ucwords($mvc['app']),
-            'module'=>ucwords($mvc['module']),
-            'controller'=>ucwords($mvc['controller']),
-            'action'=>$mvc['action'],
+            'app' => ucwords($mvc['app']),
+            //'module'=>ucwords($mvc['module']),
+            'controller' => ucwords($mvc['controller']),
+            'action' => $mvc['action'],
         ];
     }
 }

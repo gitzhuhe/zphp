@@ -20,6 +20,7 @@ use ZPHP\Core\Request;
 use ZPHP\Core\Route;
 use ZPHP\Core\Swoole;
 use ZPHP\Coroutine\Base\CoroutineTask;
+use ZPHP\Dora\Packet;
 use ZPHP\Protocol\Response;
 use ZPHP\Session\Session;
 use ZPHP\Socket\Callback\SwooleTcp as ZSwooleTcp;
@@ -48,7 +49,6 @@ class SwooleTcp extends ZSwooleTcp
         try {
             $requestDeal = clone $this->requestDeal;
             $requestDeal->initTcp($serv, $fd , $data);
-
             $pack = $this->dispatcher->distribute($requestDeal);
 
             if($pack!=='NULL') {
@@ -58,16 +58,18 @@ class SwooleTcp extends ZSwooleTcp
             $message = explode('|',$e->getMessage());
             $code = intval($message[0]);
             if($code==0){
-                //$response->status(500);
-                //$httpResult = Swoole::info($e->getMessage());
+                $httpResult = Swoole::tcpInfo($e->getMessage());
             }else {
-                //$response->status($code);
                 $otherMessage = !empty($message[1])?' '.$message[1]:'';
-                //$httpResult = Swoole::info(Response::$HTTP_HEADERS[$code].$otherMessage);
+                $httpResult = Swoole::tcpInfo($code.$otherMessage);
             }
-            //$response->end($httpResult);
-            Log::write('Tcp Exception',1);
-            $serv->send($fd , '');
+            //TODO 异常暂时处理方式
+            if(!empty($requestDeal->tcpData['guid'])){
+                $guid = $requestDeal->tcpData['guid'];
+                $httpResult = Packet::packFormat($guid,'error',$code,$httpResult);
+                $httpResultData = Packet::packEncode($httpResult);
+                $serv->send($fd , $httpResultData);
+            }
         }
     }
 
