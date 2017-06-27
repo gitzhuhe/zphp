@@ -60,8 +60,8 @@ class Request{
     public function parse(){
         if($this->tcp){
             $this->tcpData = Packet::packDecode($this->tcp);
-            return Route::parse(!empty($this->tcpData['data']['path_info'])?$this->tcpData['data']['path_info']:'',
-                !empty($this->tcpData['data']['request_method'])?$this->tcpData['data']['request_method']:'');
+            return Route::parse(!empty($this->tcpData['result']['path_info'])?$this->tcpData['result']['path_info']:'',
+                !empty($this->tcpData['result']['request_method'])?$this->tcpData['result']['request_method']:'');
         }else{
             return Route::parse($this->request->server['path_info'],
             $this->request->server['request_method']);
@@ -143,7 +143,7 @@ class Request{
         //$controller->module = $mvc['module'];
         $controller->controller = $mvc['controller'];
         $controller->method= $action;
-        if($this->tcpData) $controller->setTcpData($this->tcpServ, $this->tcpFd , $this->tcpData['data']);
+        if($this->tcpData) $controller->setTcpData($this->tcpServ, $this->tcpFd , $this->tcpData['result']);
         else $controller->setSwRequestResponse($this->request, $this->response);
         return $this->executeGeneratorScheduler($controller);
     }
