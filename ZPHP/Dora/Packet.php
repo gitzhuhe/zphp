@@ -13,7 +13,7 @@ class Packet
             "guid" => $guid,
             "code" => $code,
             "msg" => $msg,
-            "data" => $data,
+            "result" => $data,
         );
 
         return $pack;
