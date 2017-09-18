@@ -172,10 +172,14 @@ class Controller extends IController
     protected function strReturn($data, $code = 200)
     {
         if ($this->checkResponse()) {
-            $this->setHeader('Content-Type', 'text/html; charset=utf-8');
-            $result = strval($data);
-            $this->setStatusCode($code);
-            $this->setResponseContent($result);
+            if ($this->isTcp) {
+                $this->setTcpContent($data);
+            } else {
+                $this->setHeader('Content-Type', 'text/html; charset=utf-8');
+                $result = strval($data);
+                $this->setStatusCode($code);
+                $this->setResponseContent($result);
+            }
         }
     }
 

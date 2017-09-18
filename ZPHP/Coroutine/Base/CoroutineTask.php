@@ -92,7 +92,7 @@ class CoroutineTask{
     public function onExceptionHandle($message){
         $this->finish();
         $action = 'onSystemException';
-        Log::write('系统级错误:'.$message, Log::ERROR, true);
+        Log::write('系统级错误:'.$message.' On:'.get_class($this->controller), Log::ERROR, true);
         $generator = call_user_func_array([$this->controller, $action], [$message]);
         if ($generator instanceof \Generator) {
             $this->setRoutine($generator);
