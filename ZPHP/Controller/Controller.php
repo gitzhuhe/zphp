@@ -325,6 +325,7 @@ class Controller extends IController
     {
         $message = DEBUG === true ? $message : '系统出现了异常';
         $this->strReturn(Swoole::info($message), 500);
+        Log::write($message . ' ON:' . get_class($this) . '->' . $this->method);
         yield $this->endResponse();
     }
 
