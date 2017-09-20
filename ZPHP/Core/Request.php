@@ -60,6 +60,7 @@ class Request{
     public function parse(){
         if($this->tcp){
             $this->tcpData = Packet::packDecode($this->tcp);
+            Log::write($this->tcpData['result']['path_info'].':'.json_encode($this->tcpData['result']['param']), 1);
             return Route::parse(!empty($this->tcpData['result']['path_info'])?$this->tcpData['result']['path_info']:'',
                 !empty($this->tcpData['result']['request_method'])?$this->tcpData['result']['request_method']:'');
         }else{
