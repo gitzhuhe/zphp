@@ -16,6 +16,8 @@ class WebResponse extends BaseResponse{
     {
         $this->swServer = $server;
         $this->swFd = $fd;
-        $this->swServer->push($this->swFd, $this->content);
+        if ($this->swServer->exist($fd)) {
+            $this->swServer->push($this->swFd, $this->content);
+        }
     }
 }
