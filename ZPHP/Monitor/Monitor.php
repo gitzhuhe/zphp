@@ -59,7 +59,7 @@ class Monitor {
 
 
     protected function outputStatus($pidDetail, $explode="\n"){
-        echo "Welcome ".Config::get('project_name')."!".$explode;
+        echo "Welcome ".Config::getField('project','project_name')."!".$explode;
         $pidStatic = [];
         foreach($pidDetail as $key => $value){
             if(empty($pidStatic[$value[11]])){
