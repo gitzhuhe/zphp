@@ -272,16 +272,28 @@ class Model {
      * @return \Generator
      * @throws \Exception
      */
-    public function add($data, $replace=false){
-        yield $this->doBeforeQuery(__METHOD__);
+    public function add($datas, $replace=false){
         $fields = [];
-        $values = [];
-        foreach($data as $key => $value){
-            $fields[] = $key;
-            $values[] = $this->_parseType($data, $key);
+        if (!isset($datas[ 0 ]))
+        {
+            $datas = [$datas];
+        }
+        foreach ($datas as $data)
+        {
+            foreach ($data as $key => $value)
+            {
+                if(!in_array($key, $fields)) $fields[] = $key;
+            }
+        }
+        foreach ($datas as $data){
+            $values = [];
+            foreach($data as $key => $value){
+                $values[] = $this->parseValue($value);
+            }
+            $stack[] = '('.implode(',', $values).')';
         }
         $sql = (true===$replace?'REPLACE':'INSERT').' INTO '.$this->table
-            .' ('.'`' . implode('`,`', $fields) . '`'.') VALUES ('.implode(',', $values).')';
+            .' ('.'`' . implode('`,`', $fields) . '`'.') VALUES ' . implode(', ', $stack);
         $data = yield $this->query($sql);
         return $data['result']===false?false:$data['insert_id'];
     }
