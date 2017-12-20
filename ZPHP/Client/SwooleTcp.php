@@ -139,8 +139,10 @@ class SwooleTcp extends ZSwooleTcp
             }else{
                 $taskObject = $this->taskObjectArray[$data['class']];
             }
+            if(method_exists($taskObject, 'before')){
+                call_user_func([$taskObject, 'before']);
+            }
             $res = call_user_func_array([$taskObject, $data['method']], $data['param']);
-
             if(method_exists($taskObject, 'complete')){
                 call_user_func([$taskObject, 'complete']);
             }
