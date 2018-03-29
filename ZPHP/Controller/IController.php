@@ -15,7 +15,7 @@ abstract class IController{
     public $module;
     public $controller;
     public $method;
-    protected $coroutineMethod;
+    public $coroutineMethod;
     protected $coroutineParam=[];
 
 
@@ -23,13 +23,14 @@ abstract class IController{
      * @var BaseResponse
      */
     protected $response;
+    protected $tcpResponse;
 
     protected function init(){
         return true;
     }
 
     public function setApi(){
-        $this->response->setApi();
+        if($this->response) $this->response->setApi();
     }
 
     public function checkApi(){
@@ -67,7 +68,11 @@ abstract class IController{
      * @return bool
      */
     protected function checkResponse(){
-        return $this->response->checkResponse();
+        if($this->isTcp){
+            return $this->tcpResponse->checkResponse();
+        }else{
+            return $this->response->checkResponse();
+        }
     }
 
     public function destroy(){

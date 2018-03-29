@@ -93,4 +93,32 @@ HTMLS;
 
         return $info;
     }
+
+    /**
+     * 输出一条错误信息，并结束程序的运行
+     * @param $msg
+     * @param $content
+     * @return Array
+     */
+    public static function infoArray($msg, $content=''){
+        if (DEBUG===true) {
+            $info[] = $msg;
+            $trace = debug_backtrace();
+            foreach ($trace as $k => $t) {
+                if (empty($t['line'])) {
+                    $t['line'] = 0;
+                }
+                if (empty($t['class'])) {
+                    $t['class'] = '';
+                }
+                if (empty($t['type'])) {
+                    $t['type'] = '';
+                }
+                if (empty($t['file'])) {
+                    $t['file'] = 'unknow';
+                }
+                $info []= "#$k line:{$t['line']} call:{$t['class']}{$t['type']}{$t['function']}\tfile:{$t['file']}\n";
+            }
+        }
+    }
 }

@@ -1,2 +1,7 @@
 
 \.idea/
+apps/
+config/
+doc/
+tmp/
+server/

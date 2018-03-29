@@ -9,17 +9,20 @@
 namespace ZPHP\Core;
 use ZPHP\Controller\Controller;
 use ZPHP\Controller\IController;
-use ZPHP\Controller\WSController;
 use ZPHP\Coroutine\Base\CoroutineTask;
+use ZPHP\Dora\Packet;
 
-class Request{
+class TCPRequest extends Request {
 
     /**
      * @var CoroutineTask $coroutineTask;
      */
     protected $coroutineTask;
-    protected $request;
-    protected $response;
+
+    public $Data;
+    public $tcpData;
+    protected $tcpServ;
+    protected $tcpFd;
 
     function __construct(CoroutineTask $coroutineTask)
     {
@@ -37,9 +40,10 @@ class Request{
      * @param $request
      * @param $response
      */
-    public function init($request, $response){
-        $this->request = $request;
-        $this->response = $response;
+    public function init($serv, $fd ,$data){
+        $this->Data = $data;
+        $this->tcpServ = $serv;
+        $this->tcpFd = $fd;
     }
 
     /**
@@ -47,8 +51,10 @@ class Request{
      * @return array|null
      */
     public function parse(){
-        return Route::parse($this->request->server['path_info'],
-            $this->request->server['request_method']);
+        $this->tcpData = Packet::packDecode($this->Data);
+        $result = $this->tcpData['result'];
+        return Route::parse(!empty($result['path_info'])?$result['path_info']:'',
+            !empty($result['request_method'])?$result['request_method']:'');
     }
 
 
@@ -123,10 +129,11 @@ class Request{
         };
         $controller->setCoroutineMethodParam($coroutineMethod, []);
 
-        $controller->module = $mvc['module'];
+        $controller->module = $mvc['app'];
         $controller->controller = $mvc['controller'];
         $controller->method= $action;
-        $controller->setSwRequestResponse($this->request, $this->response);
+        // $controller->setSwRequestResponse($this->request, $this->response);
+        $controller->setTcpData($this->tcpServ, $this->tcpFd , $this->tcpData['result']);
         return $this->executeGeneratorScheduler($controller);
     }
 

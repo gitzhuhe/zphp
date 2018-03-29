@@ -9,7 +9,6 @@
 
 namespace ZPHP\Core;
 
-use Main\Main;
 use ZPHP\Common\Dir;
 use ZPHP\ZPHP;
 

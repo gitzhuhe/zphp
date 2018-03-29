@@ -21,7 +21,7 @@ class Container
         return self::$instances;
     }
 
-    public function make($objectName, $params = null){
+    public static function make($objectName, $params = null){
         $keyName = $objectName;
         if (is_array($params)&&!empty($params['_prefix'])) {
             $keyName .= $params['_prefix'];
