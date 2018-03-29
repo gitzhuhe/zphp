@@ -75,7 +75,7 @@ class MysqlAsynPool extends AsynPool implements IOvector{
                 }
             }catch(\Exception $e){
                 if(!empty($data)) {
-                    $data['result']['exception'] = $e->getMessage();
+                    $data['result']['exception'] = $e;
                     $this->distribute($data);
                 }
             }
@@ -94,10 +94,11 @@ class MysqlAsynPool extends AsynPool implements IOvector{
             $client = $this->_transList[$data['trans_id']];
         }else{
             //代表目前没有可用的连接
-            if(!$this->pool->isEmpty()){
+            while(!$this->pool->isEmpty()){
                 $client = $this->pool->dequeue();
                 if($client->isActive===true){
                     $needCreateClient = false;
+                    break;
                 }else{
                     unset($client);
                 }
@@ -147,7 +148,7 @@ class MysqlAsynPool extends AsynPool implements IOvector{
                     $this->distribute($data);
                 }
             }catch(\Exception $e){
-                $data['result']['exception'] = $e->getMessage();
+                $data['result']['exception'] = $e;
                 $this->distribute($data);
             }
         };
