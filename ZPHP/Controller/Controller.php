@@ -185,16 +185,12 @@ class Controller extends IController
      * @param $data
      * @throws \Exception
      */
-    protected function jsonReturn($data)
-    {
-        if ($this->checkResponse()) {
-            $result = json_encode($data);
-            if (!empty(Config::get('response_filter'))) {
-                $result = $this->strNull($result);
-            }
-            $this->setStatusCode(200);
-            $this->setHeader('Content-Type', 'application/json');
-            $this->setResponseContent($result);
+    protected function jsonReturn($data){
+        if($this->checkResponse()) {
+            $this->setApi();
+            $this->setStatusCode(Response::HTTP_OK);
+            $this->setHeader('Content-Type',   'application/json');
+            $this->setResponseContent($data);
         }
     }
 
