@@ -165,7 +165,7 @@ class Controller extends IController
      * html return
      * @param $data
      */
-    protected function strReturn($data, $code=Response::HTTP_OK){
+    protected function strReturn($data, $code=Response::HTTP_OK)
     {
         if ($this->checkResponse()) {
             if ($this->isTcp) {
@@ -178,7 +178,6 @@ class Controller extends IController
             }
         }
     }
-
 
     /**
      * json return
