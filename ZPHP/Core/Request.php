@@ -103,11 +103,7 @@ class Request{
      */
     public function defaultDistribute($mvc)
     {
-        // $controllerClass = 'controller\\'.$mvc['module'].'\\'.$mvc['controller'];
         $controllerClass = $mvc['app'].'\\controller\\'.$mvc['controller'];
-//        if(!empty(Config::getField('project','reload')) && extension_loaded('runkit')){
-//            Di::clear($controllerClass, 'controller');
-//        }
         try {
             $controller = clone Di::make($controllerClass);
         }catch(\Exception $e) {

@@ -11,6 +11,8 @@ use ZPHP\Controller\Controller;
 use ZPHP\Controller\IController;
 use ZPHP\Coroutine\Base\CoroutineTask;
 use ZPHP\Dora\Packet;
+use ZPHP\Network\Http\Response;
+
 
 class TCPRequest extends Request {
 
@@ -90,12 +92,12 @@ class TCPRequest extends Request {
      */
     protected function executeGeneratorScheduler(IController $controller){
         $action = 'coroutineStart';
-        $returnRes = 'NULL';
+        $returnRes = TCPRequest::RETURN_NULL;
         $generator = call_user_func([$controller, $action]);
         if ($generator instanceof \Generator) {
             $task = clone $this->coroutineTask;
-            $task->setController($controller);
-            $task->setRoutine($generator);
+            $action = "onSystemException";
+            $task->setTask($generator, [$controller, $action]);
             $task->work();
         }else{
             $returnRes = $generator;
@@ -107,19 +109,15 @@ class TCPRequest extends Request {
      */
     public function defaultDistribute($mvc)
     {
-        // $controllerClass = 'controller\\'.$mvc['module'].'\\'.$mvc['controller'];
         $controllerClass = $mvc['app'].'\\controller\\'.$mvc['controller'];
-//        if(!empty(Config::getField('project','reload')) && extension_loaded('runkit')){
-//            Di::clear($controllerClass, 'controller');
-//        }
         try {
             $controller = clone Di::make($controllerClass);
         }catch(\Exception $e) {
-            throw new \Exception('404|'.$e->getMessage());
+            throw new \Exception(strval(Response::HTTP_NOT_FOUND)."|".$e->getMessage());
         }
         $action = $mvc['action'];
         if(!method_exists($controller, $action)){
-            throw new \Exception(404);
+            throw new \Exception(strval(Response::HTTP_NOT_FOUND)."|$action not found");
         }
         /**
          * @var Controller $controller

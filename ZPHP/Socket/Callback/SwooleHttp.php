@@ -14,7 +14,7 @@ use ZPHP\Socket\Callback\Swoole as CSwoole;
 abstract class SwooleHttp extends CSwoole
 {
 
-    public function onReceive()
+    public function onReceive(\swoole_server $serv, $fd, $from_id, $data)
     {
         throw new \Exception('http server must use onRequest');
     }

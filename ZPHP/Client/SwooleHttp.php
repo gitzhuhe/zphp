@@ -22,6 +22,8 @@ use ZPHP\Network\Http\Response;
 use ZPHP\Session\Session;
 use ZPHP\Socket\Callback\SwooleHttp as ZSwooleHttp;
 use ZPHP\Socket\IClient;
+use ZPHP\Sync\Db\DbSyncPool;
+use ZPHP\Sync\Redis\RedisSyncPool;
 
 class SwooleHttp extends ZSwooleHttp
 {
@@ -40,6 +42,7 @@ class SwooleHttp extends ZSwooleHttp
     protected $requestDeal;
 
     protected $taskObjectArray;
+
     public function onRequest($request, $response)
     {
         try {
@@ -104,6 +107,7 @@ class SwooleHttp extends ZSwooleHttp
             // $syncDb = Config::getByStr('project.syncDb');
             // if($syncDb == true){
             $this->syncDbPool = Di::make(DbSyncPool::class,$workerId);
+            $this->syncRedisPool = Di::make(RedisSyncPool::class);
             // }
             // $syncRedis = Config::getByStr('project.syncRedis');
         }
@@ -144,7 +148,7 @@ class SwooleHttp extends ZSwooleHttp
                 $this->taskObjectArray[$data['class']] = Di::make($data['class'],$classParam);
                 $taskObject = $this->taskObjectArray[$data['class']];
                 if (method_exists($taskObject, 'setDb')) {
-                    call_user_func_array([$taskObject, 'setDb'], [$this->syncDbPool]);
+                    call_user_func_array([$taskObject, 'setDb'], [[$this->syncDbPool, $this->syncRedisPool]]);
                 }
                 if(method_exists($taskObject, 'init')){
                     call_user_func([$taskObject, 'init']);

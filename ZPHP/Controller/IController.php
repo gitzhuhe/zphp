@@ -17,7 +17,7 @@ abstract class IController{
     public $method;
     public $coroutineMethod;
     protected $coroutineParam=[];
-
+    public $isTcp;
 
     /**
      * @var BaseResponse

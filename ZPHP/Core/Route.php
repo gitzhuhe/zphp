@@ -159,8 +159,8 @@ class Route {
      */
     static function dealUcfirst($mvc){
         return [
-            'module'=>ucfirst($mvc['app']),
-            'controller'=>ucfirst($mvc['controller']),
+            'app'=>ucwords($mvc['app']),
+            'controller'=>ucwords($mvc['controller']),
             'action'=>$mvc['action'],
         ];
     }

@@ -104,7 +104,9 @@ class Scheduler{
             /**
              * @var $debugTrace DebugTrace
              */
+            // var_dump($this->coroutineTask->getContext());
             $debugTrace = $this->coroutineTask->getContext()->get(DebugTrace::Name);
+            // var_dump($debugTrace);
             $debugTrace->addParam($value->getDebugKey(), $value->getDebugTrace());
             $this->stack->push($routine);
             $value->sendCallback([$this, "callback"]);

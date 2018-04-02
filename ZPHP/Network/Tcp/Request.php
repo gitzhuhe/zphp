@@ -10,6 +10,7 @@ namespace ZPHP\Network\Tcp;
 use ZPHP\Common\Utils;
 use ZPHP\Core\Config;
 use ZPHP\Core\Rand;
+use ZPHP\Extend\DebugTrace;
 use ZPHP\Session\Session;
 
 /**
@@ -28,6 +29,12 @@ class Request{
 
     public function init($request){
         $this->request = empty($request['param'])?[]:$request['param'];
+
+        $debugKey = Config::getField("project", "debug_trace", "debug_trace");
+        $debugValid = yield getContext($debugKey);
+        $valid = (!empty($debugValid)&&($debugValid==="t1"||$debugValid=="t2"))?true:false;
+        yield setContext(DebugTrace::Valid, $valid);
+        yield setContext(DebugTrace::Name, new DebugTrace($valid, $debugValid));
     }
 
     /**

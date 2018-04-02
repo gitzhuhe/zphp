@@ -112,4 +112,8 @@ class Pool
         // TODO: Implement __call() method.
     }
 
+//禁止clone
+    private function __clone()
+    {
+    }
 }

@@ -77,7 +77,7 @@ class Controller extends IController
     function __clone()
     {
         // TODO: Implement __clone() method.
-        $cloneArray = ['view', 'request', 'response'];
+        $cloneArray = ['view', 'request', 'response', 'tcpResponse'];
         foreach ($cloneArray as $item) {
             if (!empty($this->$item)) {
                 $this->$item = clone $this->$item;
@@ -170,10 +170,10 @@ class Controller extends IController
         if ($this->checkResponse()) {
             if ($this->isTcp) {
                 $this->setTcpContent($data);
-                $this->setHeader('Content-Type', 'text/html; charset=utf-8');
             } else {
                 $result = strval($data);
                 $this->setStatusCode($code);
+                $this->setHeader('Content-Type', 'text/html; charset=utf-8');
                 $this->setResponseContent($result);
             }
         }
