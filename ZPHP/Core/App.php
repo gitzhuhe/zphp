@@ -78,8 +78,16 @@ abstract class App{
             throw new \Exception("组件名不能为空");
         }
         $key = self::getComponentName($arguments[0]);
+
+        if(strpos($key , '#') !== false) {
+            list($App, $Path) = explode('#', $key );
+            $objectName = $App.'\\'.$name."\\".ucwords($Path);
+        }else{
+            $objectName = $key."\\".$name;
+        }
+
         $argu = !empty($arguments[1])?$arguments[1]:[];
-        return self::get($key.'\\'.$name, $argu);
+        return self::get($objectName, $argu);
     }
 
 
