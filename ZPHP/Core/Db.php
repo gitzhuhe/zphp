@@ -219,6 +219,10 @@ class Db {
      */
     public static function table($tableName='', $poolName='default'){
         if(!isset(self::$_tables[$poolName][$tableName])){
+            if(strpos($tableName , '#') !== false){
+                list($poolName, $tableName) = explode('#', $tableName);
+                if(empty($poolName)) $poolName = 'default';
+            }
             self::$_tables[$poolName][$tableName] = new Model($tableName, self::$instance->mysqlPool[$poolName]);
         }
         return self::$_tables[$poolName][$tableName];
