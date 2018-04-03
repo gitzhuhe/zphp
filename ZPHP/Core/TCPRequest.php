@@ -7,6 +7,7 @@
  */
 
 namespace ZPHP\Core;
+
 use ZPHP\Controller\Controller;
 use ZPHP\Controller\IController;
 use ZPHP\Coroutine\Base\CoroutineTask;
@@ -14,10 +15,11 @@ use ZPHP\Dora\Packet;
 use ZPHP\Network\Http\Response;
 
 
-class TCPRequest extends Request {
+class TCPRequest extends Request
+{
 
     /**
-     * @var CoroutineTask $coroutineTask;
+     * @var CoroutineTask $coroutineTask ;
      */
     protected $coroutineTask;
 
@@ -42,7 +44,8 @@ class TCPRequest extends Request {
      * @param $request
      * @param $response
      */
-    public function init($serv, $fd ,$data){
+    public function init($serv = null, $fd = 0, $data = [])
+    {
         $this->Data = $data;
         $this->tcpServ = $serv;
         $this->tcpFd = $fd;
@@ -52,13 +55,13 @@ class TCPRequest extends Request {
      * 解析路由
      * @return array|null
      */
-    public function parse(){
+    public function parse()
+    {
         $this->tcpData = Packet::packDecode($this->Data);
         $result = $this->tcpData['result'];
-        return Route::parse(!empty($result['path_info'])?$result['path_info']:'',
-            !empty($result['request_method'])?$result['request_method']:'');
+        return Route::parse(!empty($result['path_info']) ? $result['path_info'] : '',
+            !empty($result['request_method']) ? $result['request_method'] : '');
     }
-
 
 
     /**
@@ -72,15 +75,15 @@ class TCPRequest extends Request {
         $reflectFunc = new \ReflectionFunction($callback);
         $reflectParam = $reflectFunc->getParameters();
         $paramArray = [];
-        foreach($reflectParam as $key => $value){
-            if(!isset($param[$value->name])){
+        foreach ($reflectParam as $key => $value) {
+            if (!isset($param[$value->name])) {
                 break;
             }
             $paramArray[] = $param[$value->name];
         }
         $callbackResult = call_user_func_array($callback, $paramArray);
-        if($callbackResult instanceof \Generator){
-            $callbackResult = $this->generatDistribute($callback,$paramArray);
+        if ($callbackResult instanceof \Generator) {
+            $callbackResult = $this->generatDistribute($callback, $paramArray);
         }
         return $callbackResult;
     }
@@ -90,7 +93,8 @@ class TCPRequest extends Request {
      * @param IController $controller
      * @return mixed|string
      */
-    protected function executeGeneratorScheduler(IController $controller){
+    protected function executeGeneratorScheduler(IController $controller)
+    {
         $action = 'coroutineStart';
         $returnRes = TCPRequest::RETURN_NULL;
         $generator = call_user_func([$controller, $action]);
@@ -99,39 +103,40 @@ class TCPRequest extends Request {
             $action = "onSystemException";
             $task->setTask($generator, [$controller, $action]);
             $task->work();
-        }else{
+        } else {
             $returnRes = $generator;
         }
         return $returnRes;
     }
+
     /**
      * 默认mvc模式
      */
     public function defaultDistribute($mvc)
     {
-        $controllerClass = $mvc['app'].'\\controller\\'.$mvc['controller'];
+        $controllerClass = $mvc['app'] . '\\controller\\' . $mvc['controller'];
         try {
             $controller = clone Di::make($controllerClass);
-        }catch(\Exception $e) {
-            throw new \Exception(strval(Response::HTTP_NOT_FOUND)."|".$e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception(strval(Response::HTTP_NOT_FOUND) . "|" . $e->getMessage());
         }
         $action = $mvc['action'];
-        if(!method_exists($controller, $action)){
-            throw new \Exception(strval(Response::HTTP_NOT_FOUND)."|$action not found");
+        if (!method_exists($controller, $action)) {
+            throw new \Exception(strval(Response::HTTP_NOT_FOUND) . "|$action not found");
         }
         /**
          * @var Controller $controller
          */
-        $coroutineMethod = function()use($controller, $action){
+        $coroutineMethod = function () use ($controller, $action) {
             return call_user_func([$controller, $action]);
         };
         $controller->setCoroutineMethodParam($coroutineMethod, []);
 
         $controller->module = $mvc['app'];
         $controller->controller = $mvc['controller'];
-        $controller->method= $action;
+        $controller->method = $action;
         // $controller->setSwRequestResponse($this->request, $this->response);
-        $controller->setTcpData($this->tcpServ, $this->tcpFd , $this->tcpData['result']);
+        $controller->setTcpData($this->tcpServ, $this->tcpFd, $this->tcpData['result']);
         return $this->executeGeneratorScheduler($controller);
     }
 
@@ -150,7 +155,7 @@ class TCPRequest extends Request {
          */
         $controller = clone $FController;
         $type = Config::getField('project', 'type');
-        if(strtolower($type)=='api'){
+        if (strtolower($type) == 'api') {
             $controller->setApi();
         }
 
