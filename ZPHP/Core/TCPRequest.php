@@ -57,8 +57,13 @@ class TCPRequest extends Request
      */
     public function parse()
     {
-        $this->tcpData = Packet::packDecode($this->Data);
-        $result = $this->tcpData['result'];
+        if($this->Data) {
+            $this->tcpData = Packet::packDecode($this->Data);
+            $result = $this->tcpData['result'];
+        }
+        else{
+            $result = [];
+        }
         return Route::parse(!empty($result['path_info']) ? $result['path_info'] : '',
             !empty($result['request_method']) ? $result['request_method'] : '');
     }
