@@ -55,7 +55,7 @@ class ZPHP
 
     public static function init()
     {
-        define("ZPHP_VERSION", 4.0);
+        define("ZPHP_VERSION", 4.05);
         defined('DS') || define('DS', DIRECTORY_SEPARATOR);
         $mode = get_cfg_var('zphp.RUN_MODE');
         $mode = in_array($mode, ['qatest', 'online', 'local', 'pre']) ? $mode : 'qatest';

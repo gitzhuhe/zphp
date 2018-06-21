@@ -104,11 +104,16 @@ class SwooleHttp extends ZSwooleHttp
             $this->dispatcher = Di::make(Dispatcher::class);
             $this->requestDeal = Di::make(Request::class, $this->coroutineTask);
         }else {
-            // $syncDb = Config::getByStr('project.syncDb');
-            // if($syncDb == true){
-            $this->syncDbPool = Di::make(DbSyncPool::class,$workerId);
-            $this->syncRedisPool = Di::make(RedisSyncPool::class);
-            // }
+            $syncDb = Config::getByStr('project.syncDb');
+            if($syncDb == true){
+                $this->syncDbPool = Di::make(DbSyncPool::class,$workerId);
+                //$ this->syncRedisPool = Di::make(RedisSyncPool::class);
+            }
+            $syncRedis = Config::getByStr('project.syncRedis');
+            if($syncRedis == true){
+                // $this->syncDbPool = Di::make(DbSyncPool::class,$workerId);
+                $this->syncRedisPool = Di::make(RedisSyncPool::class);
+            }
             // $syncRedis = Config::getByStr('project.syncRedis');
         }
     }

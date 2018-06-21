@@ -18,11 +18,11 @@ class DbSyncPool
 
     public function __construct($workerId)
     {
-        $config = Config::get('mysql');
-        $this->mysqlPool = new Pool();
+        $config = Config::get('mysql', []);
         foreach ($config as $key => $value) {
-            if (empty($this->mysqlPool->checkDb($key))) {
-                $this->mysqlPool->connect($key, $value);
+            $this->mysqlPool[$key] = new Pool();
+            if (empty($this->mysqlPool[$key]->checkDb($key)) && $value) {
+                $this->mysqlPool[$key]->connect($key, $value);
             }
         }
     }

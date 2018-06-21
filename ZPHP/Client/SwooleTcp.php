@@ -98,11 +98,16 @@ class SwooleTcp extends ZSwooleTcp
             $this->dispatcher = Di::make(Dispatcher::class);
             $this->requestDeal = Di::make(TCPRequest::class, $this->coroutineTask);
         } else {
-            // $syncDb = Config::getByStr('project.syncDb');
-            // if($syncDb == true){
-            $this->syncDbPool = Di::make(DbSyncPool::class, $workerId);
-            $this->syncRedisPool = Di::make(RedisSyncPool::class);
-            // }
+            $syncDb = Config::getByStr('project.syncDb');
+            if ($syncDb == true) {
+                $this->syncDbPool = Di::make(DbSyncPool::class, $workerId);
+                // $this->syncRedisPool = Di::make(RedisSyncPool::class);
+            }
+            $syncRedis = Config::getByStr('project.syncRedis');
+            if($syncRedis == true){
+                // $this->syncDbPool = Di::make(DbSyncPool::class,$workerId);
+                $this->syncRedisPool = Di::make(RedisSyncPool::class);
+            }
             // $syncRedis = Config::getByStr('project.syncRedis');
         }
     }

@@ -21,7 +21,7 @@ class RedisSyncPool
         $config = Config::get('redis');
         $this->redislPool = new Pool();
         // $this->redislPool->config = $config;
-        if (empty($this->redislPool->checkDb())) {
+        if (empty($this->redislPool->checkDb()) && $config) {
             $this->redislPool->connect($config);
         }
     }
