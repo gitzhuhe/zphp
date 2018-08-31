@@ -155,8 +155,17 @@ class SwooleHttp extends ZSwooleHttp
                 if (method_exists($taskObject, 'setDb')) {
                     call_user_func_array([$taskObject, 'setDb'], [[$this->syncDbPool, $this->syncRedisPool]]);
                 }
-                if(method_exists($taskObject, 'init')){
+                if (method_exists($taskObject, 'init')) {
                     call_user_func([$taskObject, 'init']);
+                }
+
+                $syncDb = Config::getByStr('project.syncDb');
+                if(property_exists($taskObject,'DbMysql') && $syncDb){
+                    $taskObject->DbMysql = $this->syncDbPool;
+                }
+                $syncRedis = Config::getByStr('project.syncRedis');
+                if(property_exists($taskObject,'DbRedis') &&  $syncRedis){
+                    $taskObject->DbRedis = $this->syncRedisPool;
                 }
             }else{
                 $taskObject = $this->taskObjectArray[$data['class']];

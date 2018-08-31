@@ -145,15 +145,27 @@ class SwooleTcp extends ZSwooleTcp
             if (empty($this->taskObjectArray[$data['class']])) {
                 $classParam = !empty($data['class_param']) ? $data['class_param'] : null;
                 $data['class'] = str_replace('/', '\\', $data['class']);
-                $this->taskObjectArray[$data['class']] = Container::make($data['class'], $classParam);
+                // $this->taskObjectArray[$data['class']] = Container::make($data['class'], $classParam);
+                $this->taskObjectArray[$data['class']] = Di::make($data['class'],$classParam);
                 $taskObject = $this->taskObjectArray[$data['class']];
 
                 if (method_exists($taskObject, 'setDb')) {
                     call_user_func_array([$taskObject, 'setDb'], [[$this->syncDbPool, $this->syncRedisPool]]);
                 }
+
                 if (method_exists($taskObject, 'init')) {
                     call_user_func([$taskObject, 'init']);
                 }
+
+                $syncDb = Config::getByStr('project.syncDb');
+                if(property_exists($taskObject,'DbMysql') && $syncDb){
+                    $taskObject->DbMysql = $this->syncDbPool;
+                }
+                $syncRedis = Config::getByStr('project.syncRedis');
+                if(property_exists($taskObject,'DbRedis') &&  $syncRedis){
+                    $taskObject->DbRedis = $this->syncRedisPool;
+                }
+
             } else {
                 $taskObject = $this->taskObjectArray[$data['class']];
             }

@@ -39,6 +39,9 @@ class Container
         } else {
             self::$allObject[$keyName] = new $objectName($params);
         }
+        if (method_exists(self::$allObject[$keyName], 'init')) {
+            call_user_func([self::$allObject[$keyName], 'init']);
+        }
         return self::$allObject[$keyName];
     }
 
