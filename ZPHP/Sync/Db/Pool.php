@@ -42,9 +42,9 @@ class Pool
 
     private function getObj()
     {
-        if (!$this->checkDb() && $this->config) {
-            $this->connect($this->config);
-        }
+        //if (!$this->checkDb() && $this->config) {
+        //    $this->connect($this->config);
+        //}
         return $this->db;
     }
 
