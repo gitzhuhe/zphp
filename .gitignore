@@ -5,3 +5,5 @@ config/
 doc/
 tmp/
 server/
+
+\.DS_Store

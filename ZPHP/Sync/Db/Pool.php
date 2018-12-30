@@ -13,16 +13,15 @@ namespace ZPHP\Sync\Db;
 class Pool
 {
     private $db;
-    private $sqlObj;
     private $config;
     private $rec;
 
 
-    public function connect($key, $value)
+    public function connect($value)
     {
-        $this->config[$key] = $value;
+        $this->config = $value;
         try {
-            $this->db[$key] = new Medoo([
+            $this->db = new Medoo([
                 'database_type' => 'mysql',
                 'database_name' => $value['database'],
                 'server' => $value['host'],
@@ -32,87 +31,42 @@ class Pool
                 'charset' => $value['charset']
             ]);
         } catch (\Exception $e) {
-            $this->db[$key] = null;
+            $this->db = null;
         }
     }
 
-    public function checkDb($key)
+    public function checkDb()
     {
-        return empty($this->db[$key]) ? false : true;
+        return empty($this->db) ? false : true;
     }
 
-    private function getObj($dbNum = '')
+    private function getObj()
     {
-        $dbNum = empty($dbNum) ? 'default' : $dbNum;
-        return $this->db[$dbNum];
-    }
-
-    public function table($table)
-    {
-        $this->sqlObj = new \stdClass();
-        $this->sqlObj->table = $table;
-        $this->sqlObj->field = "*";
-        $this->sqlObj->where = [];
-        return $this;
-    }
-
-    public function where($where)
-    {
-        $this->sqlObj->where = $where;
-        return $this;
-    }
-
-    public function field($field = '*')
-    {
-        $this->sqlObj->field = $field;
-        return $this;
+        if (!$this->checkDb() && $this->config) {
+            $this->connect($this->config);
+        }
+        return $this->db;
     }
 
     public function __call($name, $arguments)
     {
-        list($dbNum, $table) = explode('#', $this->sqlObj->table);
-        if (empty($table)) {
-            $table = $dbNum;
-            $dbNum = 'default';
+        $obj = $this->getObj();
+        $result = call_user_func_array([$obj, $name], $arguments);
+
+        //if (!$result) {
+        $info = $obj->error();
+        if ($info[1] == 2006 && $this->rec < 1) {
+            $this->connect($this->config);
+            $this->rec += 1;
+            return call_user_func_array([$this, $name], $arguments);
         }
-        $obj = $this->getObj($dbNum);
-        switch ($name) {
-            case 'select':
-            case 'get':
-                $result = call_user_func_array([$obj, $name], [
-                    $table,
-                    $this->sqlObj->field,
-                    $this->sqlObj->where
-                ]);
-                break;
-            case 'update':
-                $result = call_user_func_array([$obj, $name], [
-                    $table,
-                    $arguments[0],
-                    $this->sqlObj->where
-                ]);
-                break;
-            case 'insert':
-                $result = call_user_func_array([$obj, $name], [
-                    $table,
-                    $arguments[0]
-                ]);
-                break;
-        }
-        if (!$result) {
-            $info = $obj->error();
-            if ($info[1] == 2006 && $this->rec[$dbNum] < 1) {
-                $this->connect($dbNum, $this->config[$dbNum]);
-                $this->rec[$dbNum] += 1;
-                return call_user_func_array([$this, $name], $arguments);
-            }
-        }
-        $this->rec[$dbNum] = 0;
+        //}
+        $this->rec = 0;
         return $result;
         // TODO: Implement __call() method.
     }
 
-//禁止clone
+    //禁止clone
     private function __clone()
     {
     }

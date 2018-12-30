@@ -21,8 +21,8 @@ class DbSyncPool
         $config = Config::get('mysql', []);
         foreach ($config as $key => $value) {
             $this->mysqlPool[$key] = new Pool();
-            if (empty($this->mysqlPool[$key]->checkDb($key)) && $value) {
-                $this->mysqlPool[$key]->connect($key, $value);
+            if (!$this->mysqlPool[$key]->checkDb() && $value) {
+                $this->mysqlPool[$key]->connect($value);
             }
         }
     }
